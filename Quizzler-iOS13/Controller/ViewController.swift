@@ -14,19 +14,15 @@ class ViewController: UIViewController {
     @IBOutlet weak var progressBar: UIProgressView!
     @IBOutlet weak var trueButton: UIButton!
     @IBOutlet weak var falseButton: UIButton!
+    @IBOutlet weak var scoreLabel: UILabel!
     
-    let quiz = [
-        Question(q: "Four + Two is equal to Six", a: "True"),
-        Question(q: "Five - Three is greater than One", a: "True"),
-        Question(q: "Three + Eight is less than Ten", a: "False")
-    ]
-    
-    var questionNumber = 0
+    var quizBrain = QuizBrain()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        questionLabel.text = quiz[questionNumber].text
+        questionLabel.text = quizBrain.getQuestionText()
         progressBar.progress = 0
+        scoreLabel.text = "Score: \(quizBrain.getScore())"
         // Do any additional setup after loading the view.
     }
     
@@ -34,25 +30,22 @@ class ViewController: UIViewController {
     @IBAction func answerButtonPressed(_ sender: UIButton) {
         let userAnswer = sender.currentTitle
         
-        if userAnswer == quiz[questionNumber].answer {
+        if quizBrain.checkAnswer(userAnswer!){
             sender.backgroundColor = UIColor.green
         }else{
             sender.backgroundColor = UIColor.red
         }
         
-        if questionNumber < quiz.count-1{
-            questionNumber += 1
-        }else{
-            questionNumber = 0
+        if quizBrain.nextQuestion(){
             progressBar.progress = 0
         }
-        
         updateUI()
     }
     
     func updateUI() {
-        questionLabel.text = quiz[questionNumber].text
-        progressBar.progress += 1.0/Float(quiz.count)
+        scoreLabel.text = "Score: \(quizBrain.getScore())"
+        questionLabel.text = quizBrain.getQuestionText()
+        progressBar.progress += quizBrain.getProgress()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { // Change `2.0` to the desired number of seconds.
             self.trueButton.backgroundColor = UIColor.clear
             self.falseButton.backgroundColor = UIColor.clear
